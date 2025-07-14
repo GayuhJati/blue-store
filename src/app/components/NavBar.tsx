@@ -17,7 +17,7 @@ export default function NavBar() {
   ];
 
   return (
-    <nav className="bg-white shadow-sm border-b">
+    <nav className="sticky top-0 z-50 bg-white shadow-sm border-b">
       <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
         <h1 className="text-xl font-bold text-blue-700">Toko Biru</h1>
         <div className="hidden md:flex space-x-6">

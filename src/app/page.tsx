@@ -1,11 +1,25 @@
+import { Banner } from "./components/Banner";
+import { BestSeller } from "./components/BestSeller";
 import { Collection } from "./components/Collection";
 import Hero from "./components/Hero";
+import { Testimoni } from "./components/Testimoni";
 
 export default function Home() {
   return (
-    <div>
-      <Hero/>
-      <Collection/>
+    <div className="bg-gray-100 min-h-screen">
+      <Banner />
+      <div className="py-5">
+        <Hero />
+      </div>
+      <div className="py-5">
+        <Collection />
+      </div>
+      <div className="py-5">
+        <BestSeller />
+      </div>
+      <div className="py-5"> 
+        <Testimoni/>
+      </div>
     </div>
   );
 }
