@@ -1,3 +1,4 @@
+import { Article } from "./components/Article";
 import { Banner } from "./components/Banner";
 import { BestSeller } from "./components/BestSeller";
 import { Collection } from "./components/Collection";
@@ -17,8 +18,11 @@ export default function Home() {
       <div className="py-5">
         <BestSeller />
       </div>
-      <div className="py-5"> 
-        <Testimoni/>
+      <div className="py-5">
+        <Article />
+      </div>
+      <div className="py-5">
+        <Testimoni />
       </div>
     </div>
   );
