@@ -1,7 +1,7 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import { Loading } from "../components/Loading";
-import { Card } from "../components/Card";
+import { Card } from "../components/CardBook";
 import { useSearchParams } from "next/navigation";
 
 interface Item {

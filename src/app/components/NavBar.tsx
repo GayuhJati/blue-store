@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
-import { Menu, X } from "lucide-react"; // icon dari lucide-react (opsional)
+import { Menu, X } from "lucide-react"; 
 import { useAuth } from "@/contexts/auth-context";
 
 export default function NavBar() {

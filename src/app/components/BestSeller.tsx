@@ -1,8 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import React from "react";
-import { Card } from "./Card";
-import { Loading } from "./Loading";
+import { Card } from "./CardBook";
 import Link from "next/link";
 import {
   Carousel,
