@@ -13,6 +13,7 @@ export default function NavBar() {
 
   const handleLogout = () => {
     logout();
+    localStorage.setItem("roomId", "room-public");
     window.location.href = "/"; 
   };
 

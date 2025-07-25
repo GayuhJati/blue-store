@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import { X, Send } from "lucide-react";
 import Pusher from "pusher-js";
 import { useAuth } from "@/contexts/auth-context";
+import { getEchoInstance } from "@/lib/echo";
 
 export default function ChatWidget() {
   const [isOpen, setIsOpen] = useState(false);
@@ -12,26 +13,59 @@ export default function ChatWidget() {
   const [message, setMessage] = useState("");
   const chatContainerRef = useRef<HTMLDivElement>(null);
   const { user } = useAuth();
+  const [roomId, setRoomId] = useState("room-guest");
 
   useEffect(() => {
-    fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/messages`)
+    const storedRoomId = localStorage.getItem("roomId");
+    console.log("Stored Room ID:", storedRoomId);
+    if (storedRoomId) {
+      setRoomId(storedRoomId);
+    } else if (user?.id) {
+      const newRoomId = `room-${user.id}`;
+      setRoomId(newRoomId);
+      localStorage.setItem("roomId", newRoomId);
+    } else {
+      setRoomId("room-guest");
+      localStorage.setItem("roomId", "room-guest");
+    }
+  }, [user?.id]);
+
+  useEffect(() => {
+    if (!roomId) return;
+    fetch("http://localhost:8000/sanctum/csrf-cookie", {
+      credentials: "include",
+    });
+
+    const echo = getEchoInstance();
+    if (!echo) return;
+
+    // Fetch old messages sesuai roomId
+    fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/messages?room_id=${roomId}`)
       .then((res) => res.json())
       .then((data) => setMessages(data));
 
-    const pusher = new Pusher(process.env.NEXT_PUBLIC_PUSHER_KEY!, {
-      cluster: "mt1",
-    });
+    // Tentukan apakah channel public atau private
+    // "room-public" untuk guest dan chat publik
+    const isPublicRoom = roomId === "room-guest";
 
-    const channel = pusher.subscribe("chat");
-    channel.bind("message.sent", function (data: any) {
+    // Subscribe ke channel sesuai room type
+    const channel = isPublicRoom
+      ? echo.channel(`chat-room.${roomId}`)
+      : echo.private(`chat-room.${roomId}`);
+
+    channel.listen("MessageSent", (data: any) => {
       setMessages((prev) => [...prev, data.message]);
     });
 
     return () => {
-      channel.unbind_all();
-      channel.unsubscribe();
+      // Unsubscribe dari channel saat komponen unmount/roomId berubah
+      if (isPublicRoom) {
+        echo.leave(`chat-room.${roomId}`);
+      } else {
+        echo.leave(`chat-room.${roomId}`);
+      }
     };
-  }, []);
+  }, [roomId]);
 
   useEffect(() => {
     if (chatContainerRef.current) {
@@ -50,7 +84,11 @@ export default function ChatWidget() {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           credentials: "include",
-          body: JSON.stringify({ name: user ? user.name : "Anon", message }),
+          body: JSON.stringify({
+            name: user ? user.name : "Anon",
+            message,
+            room_id: roomId,
+          }),
         }
       );
       const data = await res.json();
@@ -82,8 +120,11 @@ export default function ChatWidget() {
             </div>
 
             {/* Messages Area */}
-            <div ref={chatContainerRef} className="flex-1 p-4 overflow-y-auto text-sm space-y-2 max-h-80">
-              <div  className="text-gray-500 text-center">
+            <div
+              ref={chatContainerRef}
+              className="flex-1 p-4 overflow-y-auto text-sm space-y-2 max-h-80"
+            >
+              <div className="text-gray-500 text-center">
                 {messages.map((m, i) => (
                   <div key={i} className="text-sm bg-gray-100 p-2 rounded-md">
                     <strong>{m.user?.name || m.name}</strong>: {m.message}

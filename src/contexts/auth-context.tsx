@@ -37,6 +37,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     Cookies.set("user", JSON.stringify(newUser));
     setToken(newToken);
     setUser(newUser);
+    const roomId = `room-${newUser.id}`;
+    localStorage.setItem("roomId", roomId);
   };
 
   const logout = () => {
